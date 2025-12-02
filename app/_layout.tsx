@@ -1,24 +1,30 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import React from "react";
+import { Platform } from "react-native";
+import { router, Stack } from "expo-router";
+import config from "../constants/config";
+import "../styles/global.css";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  // Web-only features
+  if (Platform.OS === "web") {
+    // Add keyboard shortcuts
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.key === "n") {
+        e.preventDefault();
+        router.push("/add-task");
+      }
+    });
 
+    // Add web analytics
+    if (config.webAnalyticsId) {
+      // Initialize analytics
+    }
+  }
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <Stack>
+      <Stack.Screen name="index" options={{ title: "Tasks" }} />
+      <Stack.Screen name="add-task" options={{ title: "Add Task" }} />
+      <Stack.Screen name="edit-task" options={{ title: "Edit Task" }} />
+    </Stack>
   );
 }
