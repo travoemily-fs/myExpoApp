@@ -2,25 +2,31 @@ import PlatformAwareCard from "@/components/PlatformAwareCard";
 import ThemedView from "@/components/ThemedView";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useTasks } from "@/hooks/useTasks";
+import { useToggleTheme } from "@/hooks/useToggleTheme";
 import type { Task } from "@/services/storage";
 import { createPlatformStyles } from "@/styles/platformStyles";
+import { useTheme } from "@react-navigation/native";
 import { Link, useFocusEffect } from "expo-router";
 import React, { useCallback } from "react";
 import {
   Alert,
   FlatList,
   Platform,
+  Switch,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
 
 export default function TasksScreen() {
-  const styles = createPlatformStyles();
+  const { dark, colors } = useTheme();
+  const styles = createPlatformStyles(colors);
+
   const { tasks, loading, error, deleteTask, updateTask, refreshTasks } =
     useTasks();
 
   const breakpoint = useBreakpoint();
+  const toggleTheme = useToggleTheme();
 
   const getNumColumns = () => {
     switch (breakpoint) {
@@ -33,10 +39,8 @@ export default function TasksScreen() {
     }
   };
 
-  // Refresh tasks when screen comes into focus (after navigation)
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused, refreshing tasks");
       refreshTasks();
     }, [refreshTasks])
   );
@@ -127,6 +131,23 @@ export default function TasksScreen() {
   return (
     <ThemedView>
       <View style={styles.container}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingHorizontal: 20,
+            paddingTop: 10,
+          }}>
+          <Text style={{ fontSize: 24, fontWeight: "600", color: colors.text }}>
+            Tasks
+          </Text>
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+            <Text style={{ color: colors.text, fontSize: 16 }}>Dark mode</Text>
+            <Switch value={dark} onValueChange={toggleTheme} />
+          </View>
+        </View>
+
         <FlatList
           data={tasks}
           renderItem={renderTask}
